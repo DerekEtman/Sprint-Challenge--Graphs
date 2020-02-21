@@ -11,9 +11,9 @@ world = World()
 
 
 # You may uncomment the smaller graphs for development and testing purposes.
-map_file = "maps/test_line.txt"
+# map_file = "maps/test_line.txt"
 # map_file = "maps/test_cross.txt"
-# map_file = "maps/test_loop.txt"
+map_file = "maps/test_loop.txt"
 # map_file = "maps/test_loop_fork.txt"
 # map_file = "maps/main_maze.txt"
 
@@ -32,6 +32,13 @@ traversal_path = []
 
 # You may find the commands `player.current_room.id`, `player.current_room.get_exits()` and `player.travel(direction)` useful.``
 
+
+# TRAVERSAL TEST
+visited_rooms = set()
+player.current_room = world.starting_room
+visited_rooms.add(player.current_room)
+starting_room = world.starting_room
+
 class Graph:
     def __init__(self):
         self.vertices = {}
@@ -48,11 +55,11 @@ g = Graph()
 
 g.add_vertex(player.current_room.id)
 
-for exit in player.current_room.get_exits():
-    g.add_edges(player.current_room.id, exit, "?")
+for direction in player.current_room.get_exits():
+    g.add_edges(player.current_room.id, direction, "?")
 
 # You may find the commands `player.current_room.id`, `player.current_room.get_exits()` and `player.travel(direction)` useful.``
-def get_it_done():
+def explore():
     # Create an empty Queue
     q = Queue()
     # Add a path to the room origin to the queue
@@ -75,10 +82,9 @@ def get_it_done():
             # IF IT HASNT been visited
         # ELSE IF IT HAS been visited
         if shortest_path is None:
-            return
+            # return
             # return to the previous room repeat the process.
             move_back(shortest_path)
-            print("current room", player.current_room.id)
 
             # resetting the q
             q.queue = []
@@ -90,16 +96,15 @@ def get_it_done():
 
 # Just keep diginginginginging
 def dft(move_direction):
-    move(move_direction)
+    auto_move(move_direction)
 
     # For each possible route
-    for direction in g.vertices[player.currentRoom.id]:
+    for direction in g.vertices[player.current_room.id]:
         # If that hole is dark and dangerous
         if g.vertices[player.current_room.id][direction] == "?":
             # do it again!
             dft(direction)
             return
-
     return
 
 
@@ -118,30 +123,61 @@ def auto_move(direction):
     
     player.travel(direction)
     traversal_path.append(direction)
+    print(f"direction in automove: {direction}")
+    print(f"current room: {current_room}")
+    print(f"traversal_path: {traversal_path}")
+
+    g.add_edges(previous_id,direction, player.current_room.id)
+    g.add_vertex(player.current_room.id)
     rev_direction = None
 
-    g.add_vertex(current_room)
-    g.add_edges(previous_id,direction, current_room)
-
-    if direction == "n":
-        rev_direction = "s"
+    if direction == "w":
+        rev_direction = "e"
     elif direction =="e":
         rev_direction = "w"
     elif direction == "s":
         rev_direction = "n"
-    elif direction == "w":
-        rev_direction ="e"
+    else:
+        rev_direction ="s"
 
-    g.add_edges(current_room, rev_direction, previous_id)
+    g.add_edges(player.current_room.id, rev_direction, previous_id)
     for direction in player.current_room.get_exits():
         if direction not in g.vertices[current_room]:
-            g.add_edges(current_room, direction, "?")
+            g.add_edges(player.current_room.id, direction, "?")
 
 
 def bft_shortest_path(starting_room):
     q = Queue()
     visited = set()
     q.enqueue([starting_room.id])
+
+    while q.size() > 0:
+        path = q.dequeue()
+        last_path = path[-1]
+        print(f"last_Path: {last_path}")
+
+        if last_path not in visited:
+            for key in g.vertices[last_path]:
+                if g.vertices[last_path][key] == "?":
+                    return path
+
+            visited.add(last_path)
+            print(f"visited: {visited}")
+
+            for direction in g.vertices[last_path]:
+                q.enqueue(path + [g.vertices[last_path][direction]])
+    return None
+
+def move_back(shortest_path):
+    while len(shortest_path) > 1:
+        grab_id  = shortest_path.pop(0)
+        print(f"grab_id in move_back: {grab_id}")
+
+        for direction in g.vertices[grab_id]:
+            if g.vertices[grab_id][direction] == shortest_path[0]:
+                traversal_path.append(direction)
+                player.travel(direction)
+
         
    
    
@@ -181,11 +217,9 @@ def bft_shortest_path(starting_room):
 
 
 
-# TRAVERSAL TEST
-visited_rooms = set()
-player.current_room = world.starting_room
-visited_rooms.add(player.current_room)
-starting_room = world.starting_room
+
+
+explore()
 
 for move in traversal_path:
     player.travel(move)
@@ -195,7 +229,6 @@ if len(visited_rooms) == len(room_graph):
     print(f"TESTS PASSED: {len(traversal_path)} moves, {len(visited_rooms)} rooms visited")
 else:
     print("TESTS FAILED: INCOMPLETE TRAVERSAL")
-    print(auto_move())
     print(f"{len(room_graph) - len(visited_rooms)} unvisited rooms")
 
 
@@ -207,7 +240,7 @@ else:
 #######
 # UNCOMMENT TO WALK AROUND
 #######
-player.current_room.print_room_description(player)
+# player.current_room.print_room_description(player)
 # while True:
 #     cmds = input("-> ").lower().split(" ")
 #     if cmds[0] in ["n", "s", "e", "w"]:
@@ -219,12 +252,12 @@ player.current_room.print_room_description(player)
 #     auto_move()
 
 
-while True:
-    cmds = input("-> ").lower().split(" ")
-    if cmds[0] == "q":
-        break
-    else:
-        print("I did not understand that command.")
-        auto_move()
+# while True:
+#     cmds = input("-> ").lower().split(" ")
+#     if cmds[0] == "q":
+#         break
+#     else:
+#         print("I did not understand that command.")
+#         auto_move()
 
 
