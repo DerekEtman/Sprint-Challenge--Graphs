@@ -32,18 +32,7 @@ traversal_path = []
 
 # You may find the commands `player.current_room.id`, `player.current_room.get_exits()` and `player.travel(direction)` useful.``
 
-def bfs(self, ):
-    # Create an empty Queue
-    # Add a path to the room origin to the queue
-    # create an empty set to store the visited rooms
-    # while the queue is not empty
-        # Dequeue the first path
-        # grab the last room from the path
-        # check if it's been visited....
-        # if it hasnt been visited
-            # mark it as visited
-            # then add a path to all neighbors to the back of the queue
-                # make a copy of the path before adding.
+
 
 
 # TRAVERSAL TEST
@@ -75,3 +64,17 @@ else:
 #         break
 #     else:
 #         print("I did not understand that command.")
+
+def bfs(self, ):
+    # Create an empty Queue
+    q = Queue()
+    # Add a path to the room origin to the queue
+    # create an empty set to store the visited rooms
+    # while the queue is not empty
+        # Dequeue the first path
+        # grab the last room from the path
+        # check if it's been visited....
+        # if it hasnt been visited
+            # mark it as visited
+            # then add a path to all neighbors to the back of the queue
+                # make a copy of the path before adding.``
