@@ -51,7 +51,7 @@ g.add_vertex(player.current_room.id)
 for exit in player.current_room.get_exits():
     g.add_edges(player.current_room.id, exit, "?")
 
-
+# You may find the commands `player.current_room.id`, `player.current_room.get_exits()` and `player.travel(direction)` useful.``
 def get_it_done():
     # Create an empty Queue
     q = Queue()
@@ -88,11 +88,23 @@ def get_it_done():
                 # then add a path to all neighbors to the back of the queue
                 q.enqueue(direction)
 
+# Just keep diginginginginging
+def dft(move_direction):
+    move(move_direction)
+
+    # For each possible route
+    for direction in g.vertices[player.currentRoom.id]:
+        # If that hole is dark and dangerous
+        if g.vertices[player.current_room.id][direction] == "?":
+            # do it again!
+            dft(direction)
+            return
+
+    return
 
 
-
-
-def auto_move(i = 0):
+# You may find the commands `player.current_room.id`, `player.current_room.get_exits()` and `player.travel(direction)` useful.``
+def auto_move(direction):
 
     # Cycle through all possible exits, 
     # if exit is possible 
@@ -100,36 +112,70 @@ def auto_move(i = 0):
     # if it hasn't been visited move to the new room
     # else check the next room
     connected_rooms = player.current_room.get_exits()
+    previous_id = player.current_room.id
+    current_room = player.current_room.id
     # next_room = player.current_room.get_room_in_direction(x)
-    while i < 10:
-        print(f"Visited Rooms: {visited}")
-        if player.current_room.id not in visited:
-            visited.add(player.current_room.id)
+    
+    player.travel(direction)
+    traversal_path.append(direction)
+    rev_direction = None
 
-        if "n" in connected_rooms and player.current_room.id not in visited:
-            print("n")
-            player.travel("n")
-            visited.add(player.current_room.id)
-            i+=1
-            return auto_move(i)
-        elif "e" in connected_rooms:
-            print("e")
-            player.travel("e")
-            i+=1
-            return auto_move(i)
-        elif "s" in connected_rooms:
-            print("s")
-            player.travel("s")
-            i+=1
-            return auto_move(i)
-        elif "w" in connected_rooms:
-            print('w')
-            player.travel("w")
-            i+=1
-            return auto_move(i)
-        else:
-            print("No where else to move.")
-            input('q')
+    g.add_vertex(current_room)
+    g.add_edges(previous_id,direction, current_room)
+
+    if direction == "n":
+        rev_direction = "s"
+    elif direction =="e":
+        rev_direction = "w"
+    elif direction == "s":
+        rev_direction = "n"
+    elif direction == "w":
+        rev_direction ="e"
+
+    g.add_edges(current_room, rev_direction, previous_id)
+    for direction in player.current_room.get_exits():
+        if direction not in g.vertices[current_room]:
+            g.add_edges(current_room, direction, "?")
+
+
+def bft_shortest_path(starting_room):
+    q = Queue()
+    visited = set()
+    q.enqueue([starting_room.id])
+        
+   
+   
+   
+#    Test code
+    # while i < 10:
+    #     print(f"Visited Rooms: {visited}")
+    #     if player.current_room.id not in visited:
+    #         visited.add(player.current_room.id)
+
+    #     if "n" in connected_rooms and player.current_room.id not in visited:
+    #         print("n")
+    #         player.travel("n")
+    #         visited.add(player.current_room.id)
+    #         i+=1
+    #         return auto_move(i)
+    #     elif "e" in connected_rooms:
+    #         print("e")
+    #         player.travel("e")
+    #         i+=1
+    #         return auto_move(i)
+    #     elif "s" in connected_rooms:
+    #         print("s")
+    #         player.travel("s")
+    #         i+=1
+    #         return auto_move(i)
+    #     elif "w" in connected_rooms:
+    #         print('w')
+    #         player.travel("w")
+    #         i+=1
+    #         return auto_move(i)
+    #     else:
+    #         print("No where else to move.")
+    #         input('q')
     
 
 
