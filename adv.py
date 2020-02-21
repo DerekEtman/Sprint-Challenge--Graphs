@@ -12,8 +12,8 @@ world = World()
 
 # You may uncomment the smaller graphs for development and testing purposes.
 # map_file = "maps/test_line.txt"
-# map_file = "maps/test_cross.txt"
-map_file = "maps/test_loop.txt"
+map_file = "maps/test_cross.txt"
+# map_file = "maps/test_loop.txt"
 # map_file = "maps/test_loop_fork.txt"
 # map_file = "maps/main_maze.txt"
 
@@ -60,20 +60,28 @@ for direction in player.current_room.get_exits():
 
 # You may find the commands `player.current_room.id`, `player.current_room.get_exits()` and `player.travel(direction)` useful.``
 def explore():
+    print("\n --Running Explore--")
+    print(f"Current room: {player.current_room.id}")
     # Create an empty Queue
     q = Queue()
     # Add a path to the room origin to the queue
     for direction in g.vertices[player.current_room.id]:
+        print(f"Explore-- printing direction in g.vertices[player...room id] {direction}")
         if g.vertices[player.current_room.id][direction] == "?":
+            print(f"Explore-- Direction {direction} is {True}")
             q.enqueue(direction)
     # create an empty set to store the visited rooms
     # visited = set()
     # while the queue is not empty
+    print(f"Explore-- Checking if q is > 0")
     while q.size() > 0:
+        print(f"q is > 0")
         # Dequeue the first path
         path = q.dequeue()
         # grab the last room from the path
         v = path[-1]
+        
+        print(f"Dispatching DFT with {path}")
         dft(path)
         # loop throughplayer.current_room.get_exits() to check if you can move in a direction
         shortest_path = bft_shortest_path(player.current_room)
@@ -81,6 +89,8 @@ def explore():
             # check if it's been visited....
             # IF IT HASNT been visited
         # ELSE IF IT HAS been visited
+        print(f"shortest_path: {shortest_path}")
+
         if shortest_path is None:
             # return
             # return to the previous room repeat the process.
@@ -96,10 +106,18 @@ def explore():
 
 # Just keep diginginginginging
 def dft(move_direction):
-    auto_move(move_direction)
+    print("\n -- Running DFT --")
+    exits = player.current_room.get_exits()
+
+    print(f"Dispatching Move: {move_direction}")
+    if move_direction in exits and not visited:
+        print(f"DFT-- printing exits: {exits}")
+        auto_move(move_direction)
 
     # For each possible route
     for direction in g.vertices[player.current_room.id]:
+        print(f"DFT-- direction: {direction}")
+        print(f" what was this? {g.vertices[player.current_room.id][direction]}")
         # If that hole is dark and dangerous
         if g.vertices[player.current_room.id][direction] == "?":
             # do it again!
@@ -110,6 +128,7 @@ def dft(move_direction):
 
 # You may find the commands `player.current_room.id`, `player.current_room.get_exits()` and `player.travel(direction)` useful.``
 def auto_move(direction):
+    print("\n --Moving--")
 
     # Cycle through all possible exits, 
     # if exit is possible 
@@ -117,17 +136,19 @@ def auto_move(direction):
     # if it hasn't been visited move to the new room
     # else check the next room
     connected_rooms = player.current_room.get_exits()
-    previous_id = player.current_room.id
     current_room = player.current_room.id
-    # next_room = player.current_room.get_room_in_direction(x)
-    
-    player.travel(direction)
-    traversal_path.append(direction)
-    print(f"direction in automove: {direction}")
-    print(f"current room: {current_room}")
-    print(f"traversal_path: {traversal_path}")
 
-    g.add_edges(previous_id,direction, player.current_room.id)
+    print(f"Current Room: {current_room}")
+    
+    print(f"Attempting to move to: {direction}")
+    player.travel(direction) 
+
+    
+    print(f"moving {direction}")
+    traversal_path.append(direction)
+    print(f"Traversal Path: {traversal_path}")
+
+    g.add_edges(current_room,direction, player.current_room.id)
     g.add_vertex(player.current_room.id)
     rev_direction = None
 
@@ -140,7 +161,7 @@ def auto_move(direction):
     else:
         rev_direction ="s"
 
-    g.add_edges(player.current_room.id, rev_direction, previous_id)
+    g.add_edges(player.current_room.id, rev_direction, current_room)
     for direction in player.current_room.get_exits():
         if direction not in g.vertices[current_room]:
             g.add_edges(player.current_room.id, direction, "?")
@@ -150,6 +171,7 @@ def bft_shortest_path(starting_room):
     q = Queue()
     visited = set()
     q.enqueue([starting_room.id])
+    print("\n --Starting BFT--")
 
     while q.size() > 0:
         path = q.dequeue()
@@ -169,9 +191,9 @@ def bft_shortest_path(starting_room):
     return None
 
 def move_back(shortest_path):
+    print("\n --Moving Back--")
     while len(shortest_path) > 1:
         grab_id  = shortest_path.pop(0)
-        print(f"grab_id in move_back: {grab_id}")
 
         for direction in g.vertices[grab_id]:
             if g.vertices[grab_id][direction] == shortest_path[0]:
