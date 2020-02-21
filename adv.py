@@ -12,10 +12,10 @@ world = World()
 
 # You may uncomment the smaller graphs for development and testing purposes.
 # map_file = "maps/test_line.txt"
-map_file = "maps/test_cross.txt"
+# map_file = "maps/test_cross.txt"
 # map_file = "maps/test_loop.txt"
 # map_file = "maps/test_loop_fork.txt"
-# map_file = "maps/main_maze.txt"
+map_file = "maps/main_maze.txt"
 
 # Loads the map into a dictionary
 room_graph=literal_eval(open(map_file, "r").read())
@@ -70,8 +70,6 @@ def explore():
         if g.vertices[player.current_room.id][direction] == "?":
             print(f"Explore-- Direction {direction} is {True}")
             q.enqueue(direction)
-        else:
-            print(f"Explore-- Direction {direction} has been")
     # create an empty set to store the visited rooms
     # visited = set()
     # while the queue is not empty
@@ -156,18 +154,19 @@ def auto_move(direction):
 
     print(f"Move-- Current Room: {player.current_room.id}")
     
-    print(f"Move-- Attempting to move to: {direction}")
-    player.travel(direction) 
-    print(f"Move-- moving To {direction}")
-
     traversal_path.append(direction)
     print(f"Move-- Traversal Path: {traversal_path}")
     print(f"Move-- Exits in the new room {player.current_room.get_exits()}")
 
+    print(f"Move-- Attempting to move to: {direction}")
+    player.travel(direction) 
+    print(f"Move-- moving To {direction}")
+
+
     g.add_edges(current_room, direction, player.current_room.id)
     print(f"Move-- edges added to {current_room} {direction}")
-
     g.add_vertex(player.current_room.id)
+
     # print(f"the graph {g}")
 
 
@@ -287,10 +286,17 @@ def move_back(shortest_path):
 
 explore()
 
-
+new_player = Player( world.starting_room)
 for move in traversal_path:
-    player.travel(move)
-    visited_rooms.add(player.current_room)
+    print(move)
+    new_player.travel(move)
+    visited_rooms.add(new_player.current_room)
+print(traversal_path)
+# print(len(visited_rooms))
+# print(len(room_graph))
+
+# for i in visited_rooms:
+#     print(i)
 
 if len(visited_rooms) == len(room_graph):
     print(f"TESTS PASSED: {len(traversal_path)} moves, {len(visited_rooms)} rooms visited")
